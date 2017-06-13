@@ -13,5 +13,4 @@
 #
 ##############################################################################
 
-import partner
-import sbid_settings
+import models
