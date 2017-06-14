@@ -1,39 +1,37 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#   Copyright (c) 2013- Vizucom Oy (http://www.vizucom.com)
+#    Copyright (c) 2013- Vizucom Oy (http://www.vizucom.com)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
 #    published by the Free Software Foundation, either version 3 of the
 #    License, or (at your option) any later version.
 #
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    GNU Affero General Public License for more details.
+#
 #    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#    along with this program. If not, see http://www.gnu.org/licenses/agpl.html.
 #
 ##############################################################################
-
 {
     'name': 'Business ID and VAT fields',
+    'summary': 'Business ID and VAT fields handling',
+    'version': '10.0.1.0.0',
     'category': 'Sale',
-    'version': '0.1',
+    'website': 'http://www.vizucom.com',
     'author': 'Vizucom Oy',
-    'depends': ['base_vat','base_misc_modules_menuitem'],
-    'description': """
-Business ID and VAT fields handling
-===================================
- * Adds a new business ID field
- * Shows business ID and existing TIN fields only for appropriate companies, based on their country (bID for Finland, TIN for EU-based countries)
- * Adds a settings window for defining whether to show bID/TIN just for top-level companies, or affiliates also
- * Restricts business IDs so that they must be unique
- * Uses the standard VIES VAT check functionality in OE core for checking the TIN authenticity
- * Initializes whether new fields are shown also for existing partners, when module is installed
-
-""",
+    'license': 'AGPL-3',
+    'application': False,
+    'installable': True,
+    'depends': [
+        'base_vat',
+    ],
     'data': [
-            'views/partner.xml',
-            'views/sbid_settings.xml',
-            'data/sbid_data.xml',
-            'security/ir.model.access.csv',
+        'views/partner.xml',
+        'data/res.country.group.csv',
     ],
 }

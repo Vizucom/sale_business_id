@@ -1,0 +1,3 @@
+"id","name","country_ids/id"
+"sale_business_id.country_group_show_bid","Show Business ID","base.fi"
+"sale_business_id.country_group_show_vat","Show VAT","base.at,base.be,base.bg,base.hr,base.cy,base.cz,base.dk,base.ee,base.fi,base.fr,base.de,base.gr,base.hu,base.ie,base.it,base.lv,base.lt,base.lu,base.mt,base.nl,base.pl,base.pt,base.ro,base.sk,base.si,base.es,base.se,base.uk"

@@ -1,103 +1,40 @@
 # -*- coding: utf-8 -*-
-from openerp import models, fields, _
-from utils import check_vat_country, check_businessid_country
+from openerp import models, fields, api, _
 
 
 class ResPartner(models.Model):
 
     _inherit = 'res.partner'
 
-    def _init_business_id_and_vat(self, cr, uid, ids=None, context=None):
-        ''' If customer data was imported to Odoo before the module installation,
-        the business id and vat fields won't get shown until the onchange function
-        gets triggered. To avoid this, loop through partner data when the module
-        is installed and assign the two "_shown" boolean fields. '''
+    @api.multi
+    @api.onchange('parent_id', 'country_id', 'company_type')
+    def _get_shown_bid_vat(self):
+        ir_config_model = self.env['ir.config_parameter']
+        show_for_affiliates = ir_config_model.get_param("sale_business_id.show_vat_and_bid_for_child_companies")
 
-        all_partner_ids         = self.search(cr, uid, args=[])
-        vat_write_ids           = []
-        businessid_write_ids    = []
+        country_group_show_vat = self.env.ref('sale_business_id.country_group_show_vat')
+        country_group_show_bid = self.env.ref('sale_business_id.country_group_show_bid')
 
-        settings_model = self.pool.get('sale_business_id.settings')
-        show_for_affiliates = settings_model.read(cr, uid, 1, ['show_bid_vat_for_affiliates'], context)['show_bid_vat_for_affiliates']
-
-        ''' Browse without context to avoid getting translated names '''
-
-        if show_for_affiliates:
-            for partner in self.browse(cr, uid, all_partner_ids):
-                if partner.is_company and check_vat_country(partner.country_id.name):
-                    vat_write_ids.append(partner.id)
-                if partner.is_company and check_businessid_country(partner.country_id.name):
-                    businessid_write_ids.append(partner.id)
-        else:
-            for partner in self.browse(cr, uid, all_partner_ids):
-                if partner.is_company and not partner.parent_id and check_vat_country(partner.country_id.name):
-                    vat_write_ids.append(partner.id)
-                if partner.is_company and not partner.parent_id and check_businessid_country(partner.country_id.name):
-                    businessid_write_ids.append(partner.id)
-
-
-        self.write(cr, uid, vat_write_ids, { 'vatnumber_shown': True})
-        print "Set %i partners' VAT fields visible " % len(vat_write_ids)
-
-        self.write(cr, uid, businessid_write_ids, { 'businessid_shown': True})
-        print "Set %i partners' Business ID fields visible " % len(businessid_write_ids)
-
-
-
-
-    def business_id_and_vat_change(self, cr, uid, ids, country_id, is_company, parent_id, context=None):
-        ''' Gets triggered in other fields' onchange and defines whether
-        the business ID and VAT fields are visible to the user '''
-
-        if not country_id:
-            val = {
-                'businessid_shown': False,
-                'vatnumber_shown': False
-            }
-            return {'value': val }
-        else:
-
-            ''' Pull from settings info about whether to show bID/VAT for affiliates as well as toplevel partners '''
-            settings_model = self.pool.get('sale_business_id.settings')
-            show_for_affiliates = settings_model.read(cr, uid, 1, ['show_bid_vat_for_affiliates'], context)['show_bid_vat_for_affiliates']
-
-            country_obj = self.pool.get('res.country')
-            selected_country = country_obj.browse(cr, uid, [country_id])[0]
-            name = selected_country['name']
-
-            val={}
-
-            if show_for_affiliates:
-                if check_businessid_country(name) and is_company:
-                    val['businessid_shown'] = True
-                else:
-                    val['businessid_shown'] = False
-
-                if check_vat_country(name) and is_company:
-                    val['vatnumber_shown'] = True
-                else:
-                    val['vatnumber_shown'] = False
-
+        for partner in self:
+            if partner.company_type == 'company' and \
+                partner.country_id and \
+                partner.country_id.id in [c.id for c in country_group_show_bid.country_ids] and \
+                (not partner.parent_id or show_for_affiliates):
+                partner.businessid_shown = True
             else:
-                if check_businessid_country(name) and is_company and not parent_id:
-                    val['businessid_shown'] = True
-                else:
-                    val['businessid_shown'] = False
+                partner.businessid_shown = False
 
-                if check_vat_country(name) and is_company and not parent_id:
-                    val['vatnumber_shown'] = True
-                else:
-                    val['vatnumber_shown'] = False
+            if partner.company_type == 'company' and \
+                partner.country_id and \
+                partner.country_id.id in [c.id for c in country_group_show_vat.country_ids] and \
+                (not partner.parent_id or show_for_affiliates):
+                partner.vat_shown = True
+            else:
+                partner.vat_shown = False
 
-            return { 'value': val }
-
-    ''' "_shown" fields are helpers that are never shown to users but are used with
-    onchange methods to set businessid/vat fields to invisible=true or false '''
-
-
-    businessid = fields.Char(string="Business id", size=20)
-    businessid_shown = fields.Boolean(string='Business ID shown')
-    vatnumber_shown = fields.Boolean(string='Vat shown')
+    businessid = fields.Char(string="Business ID", size=20)
+    businessid_shown = fields.Boolean(compute=_get_shown_bid_vat, string='Business ID shown', selectable=False)
+    vat_shown = fields.Boolean(compute=_get_shown_bid_vat, string='VAT shown', selectable=False)
 
     _sql_constraints = [
         ('businessid_unique', 'unique(businessid)', _('The business ID already exists for another partner.'))
