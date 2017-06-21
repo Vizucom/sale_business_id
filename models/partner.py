@@ -16,7 +16,7 @@ class ResPartner(models.Model):
         country_group_show_bid = self.env.ref('sale_business_id.country_group_show_bid')
 
         for partner in self:
-            if partner.company_type == 'company' and \
+            if partner.is_company and \
                 partner.country_id and \
                 partner.country_id.id in [c.id for c in country_group_show_bid.country_ids] and \
                 (not partner.parent_id or show_for_affiliates):
@@ -24,7 +24,7 @@ class ResPartner(models.Model):
             else:
                 partner.businessid_shown = False
 
-            if partner.company_type == 'company' and \
+            if partner.is_company and \
                 partner.country_id and \
                 partner.country_id.id in [c.id for c in country_group_show_vat.country_ids] and \
                 (not partner.parent_id or show_for_affiliates):

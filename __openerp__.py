@@ -20,7 +20,7 @@
 {
     'name': 'Business ID and VAT fields',
     'summary': 'Business ID and VAT fields handling',
-    'version': '10.0.1.0.0',
+    'version': '8.0.1.0.0',
     'category': 'Sale',
     'website': 'http://www.vizucom.com',
     'author': 'Vizucom Oy',

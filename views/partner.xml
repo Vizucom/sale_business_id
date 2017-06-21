@@ -8,16 +8,16 @@
 			<field name="arch" type="xml">
 
 				<!-- Show Business ID next to the TIN field -->
-				<field name="property_account_position_id" position="after">
+				<label for="vat" position="before">
 					<field name="businessid" attrs="{ 'invisible': [('businessid_shown', '=', False)] }"/>
 					<field name="businessid_shown" invisible="1"/>
 					<field name="vat_shown" invisible="1"/>
-				</field>
+				</label>
 
 				<!-- Conditionally show VAT field -->
-				<field name="vat" position="attributes">
+				<div name="vat_info" position="attributes">
 					<attribute name="attrs">{ 'invisible': [('vat_shown', '=', False)] }</attribute>
-				</field>
+				</div>
 				<label for="vat" position="attributes">
 					<attribute name="attrs">{ 'invisible': [('vat_shown', '=', False)] }</attribute>
 				</label>

@@ -11,7 +11,7 @@ Business ID and VAT fields
 
 Installation
 ============
-* Just install the module from Apps
+* Just install the module
 
 Configuration
 =============
